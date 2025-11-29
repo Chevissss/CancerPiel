@@ -1,6 +1,5 @@
-streamlit==1.39.0
-tensorflow==2.17.0
-pillow==10.4.0
-plotly==5.24.1
-numpy==1.26.4
-protobuf==4.25.3
+streamlit
+tensorflow>=2.16,<2.18
+pillow
+plotly
+numpy
