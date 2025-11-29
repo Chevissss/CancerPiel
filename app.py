@@ -18,10 +18,10 @@ import io
 # CONFIGURACIÓN DE LA PÁGINA
 # ============================================================================
 st.set_page_config(
-    page_title="🔬 Detector de Cáncer de Piel",
+    page_title="Detector de Cáncer de Piel",
     page_icon="🔬",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # CSS personalizado mejorado
@@ -32,6 +32,19 @@ st.markdown("""
     
     * {
         font-family: 'Inter', sans-serif;
+    }
+    
+    /* Contenedor principal centrado */
+    .block-container {
+        max-width: 1200px;
+        padding-left: 3rem;
+        padding-right: 3rem;
+        margin: 0 auto;
+    }
+    
+    /* Ocultar sidebar */
+    [data-testid="stSidebar"] {
+        display: none;
     }
     
     .main-header {
@@ -73,11 +86,21 @@ st.markdown("""
     .alert-danger {
         border-color: #f44336;
         background: linear-gradient(to right, #ffebee, #ffffff);
+        color: #c62828;
+    }
+    
+    .alert-danger strong {
+        color: #b71c1c;
     }
     
     .alert-success {
         border-color: #4caf50;
         background: linear-gradient(to right, #e8f5e9, #ffffff);
+        color: #2e7d32;
+    }
+    
+    .alert-success strong {
+        color: #1b5e20;
     }
     
     .alert-info {
@@ -164,7 +187,7 @@ st.markdown("""
     
     /* Sidebar */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+        display: none;
     }
     
     /* Botones */
@@ -240,7 +263,7 @@ def predict_image(image, model, config):
 # ============================================================================
 st.markdown("""
 <div class="main-header">
-    <h1>🔬 Detector de Cáncer de Piel</h1>
+    <h1>Detector de Cáncer de Piel</h1>
     <p>Análisis de lesiones cutáneas con Inteligencia Artificial</p>
 </div>
 """, unsafe_allow_html=True)
@@ -248,57 +271,16 @@ st.markdown("""
 # DISCLAIMER PRINCIPAL
 st.markdown("""
 <div class="alert-box alert-danger">
-    <h3 style="margin-top: 0; color: #d32f2f;">⚠️ Advertencia Médica</h3>
+    <h3 style="margin-top: 0;">Advertencia Médica</h3>
     <p style="font-size: 1.05em; line-height: 1.6; margin-bottom: 8px;">
         <strong>Este sistema es solo para fines educativos.</strong> 
         NO reemplaza el diagnóstico médico profesional ni debe usarse como única herramienta de diagnóstico.
     </p>
-    <p style="font-size: 1.05em; margin: 0; color: #d32f2f;">
-        <strong>→ Siempre consulte con un dermatólogo para cualquier lesión cutánea.</strong>
+    <p style="font-size: 1.05em; margin: 0;">
+        <strong>Siempre consulte con un dermatólogo para cualquier lesión cutánea.</strong>
     </p>
 </div>
 """, unsafe_allow_html=True)
-
-# ============================================================================
-# SIDEBAR
-# ============================================================================
-with st.sidebar:
-    st.header("📋 Información")
-    
-    if CONFIG:
-        st.markdown(f"""
-        **Modelo:** {CONFIG['MODEL_ARCHITECTURE']}  
-        **Entrada:** {CONFIG['INPUT_SHAPE'][0]}×{CONFIG['INPUT_SHAPE'][1]} px  
-        **Clases:** {', '.join(CONFIG['CLASSES'])}  
-        """)
-    
-    st.markdown("---")
-    
-    st.markdown("""
-    ### 📖 Cómo usar
-    
-    1. Carga una imagen o toma una foto
-    2. Presiona **"Analizar"**
-    3. Revisa los resultados
-    4. **Consulta a un dermatólogo**
-    
-    ### 🎯 Consejos para la foto
-    
-    - Buena iluminación natural
-    - Imagen clara y enfocada
-    - Sin sombras ni reflejos
-    - Acercamiento adecuado
-    """)
-    
-    with st.expander("ℹ️ Regla ABCDE"):
-        st.markdown("""
-        **Señales de alerta:**
-        - **A**simetría
-        - **B**ordes irregulares
-        - **C**olor variado
-        - **D**iámetro >6mm
-        - **E**volución/cambios
-        """)
 
 # ============================================================================
 # VERIFICAR MODELO
@@ -311,9 +293,9 @@ if model is None or CONFIG is None:
 # ÁREA DE CARGA
 # ============================================================================
 
-st.markdown("## 📸 Cargar Imagen")
+st.markdown("## Cargar Imagen")
 
-tab1, tab2 = st.tabs(["📁 Subir Archivo", "📷 Usar Cámara"])
+tab1, tab2 = st.tabs(["Subir Archivo", "Usar Cámara"])
 
 uploaded_image = None
 
@@ -345,13 +327,13 @@ if uploaded_image is not None:
     
     with col2:
         analyze_button = st.button(
-            "🔍 ANALIZAR IMAGEN", 
+            "ANALIZAR IMAGEN", 
             type="primary", 
             use_container_width=True
         )
     
     if analyze_button:
-        with st.spinner("🧠 Analizando..."):
+        with st.spinner("Analizando..."):
             result = predict_image(uploaded_image, model, CONFIG)
         
         # ============================================================================
@@ -364,20 +346,18 @@ if uploaded_image is not None:
         if result['prediccion'] == 'benign':
             color = "#4caf50"
             bg_color = "#e8f5e9"
-            emoji = "✅"
             mensaje = "BENIGNO"
             badge_class = "badge-success"
         else:
             color = "#f44336"
             bg_color = "#ffebee"
-            emoji = "⚠️"
             mensaje = "REQUIERE ATENCIÓN"
             badge_class = "badge-danger"
         
         # Resultado principal
         st.markdown(f"""
         <div class="result-main" style="background: {bg_color}; border-color: {color};">
-            <h1 style="color: {color};">{emoji} {mensaje}</h1>
+            <h1 style="color: {color};">{mensaje}</h1>
             <h3 style="color: {color};">Confianza: {result['confianza']:.1f}%</h3>
         </div>
         """, unsafe_allow_html=True)
@@ -386,16 +366,16 @@ if uploaded_image is not None:
         col_img, col_metrics = st.columns([1, 1])
         
         with col_img:
-            st.markdown("### 📸 Imagen Analizada")
+            st.markdown("### Imagen Analizada")
             st.image(uploaded_image, use_container_width=True)
         
         with col_metrics:
-            st.markdown("### 📊 Probabilidades")
+            st.markdown("### Probabilidades")
             
             # Benigno
             st.markdown(f"""
             <div class="metric-card">
-                <h4 style="color: #4caf50;">🟢 Benigno</h4>
+                <h4 style="color: #4caf50;">Benigno</h4>
                 <h2 style="color: #4caf50;">{result['prob_benign']:.1f}%</h2>
             </div>
             """, unsafe_allow_html=True)
@@ -403,7 +383,7 @@ if uploaded_image is not None:
             # Maligno
             st.markdown(f"""
             <div class="metric-card">
-                <h4 style="color: #f44336;">🔴 Maligno</h4>
+                <h4 style="color: #f44336;">Maligno</h4>
                 <h2 style="color: #f44336;">{result['prob_malignant']:.1f}%</h2>
             </div>
             """, unsafe_allow_html=True)
@@ -424,13 +404,13 @@ if uploaded_image is not None:
             
             st.markdown(f"""
             <div class="metric-card">
-                <h4>📈 Confianza del Modelo</h4>
+                <h4>Confianza del Modelo</h4>
                 <h2 style="color: {nivel_color};">{nivel}</h2>
             </div>
             """, unsafe_allow_html=True)
         
         # Gráfico
-        st.markdown("### 📊 Distribución")
+        st.markdown("### Distribución")
         
         import plotly.graph_objects as go
         
@@ -459,7 +439,7 @@ if uploaded_image is not None:
         
         # Recomendación
         st.markdown("---")
-        st.markdown("### 💡 Recomendación")
+        st.markdown("### Recomendación")
         
         if result['prediccion'] == 'benign':
             st.markdown("""
@@ -477,15 +457,15 @@ if uploaded_image is not None:
                 <p style="font-size: 1.05em; margin: 0 0 12px 0; line-height: 1.6;">
                     <strong>El análisis detectó características que requieren atención médica.</strong>
                 </p>
-                <p style="font-size: 1.05em; margin: 0; color: #d32f2f; line-height: 1.6;">
-                    <strong>→ Consulte INMEDIATAMENTE con un dermatólogo</strong> para 
+                <p style="font-size: 1.05em; margin: 0; line-height: 1.6;">
+                    <strong>Consulte INMEDIATAMENTE con un dermatólogo</strong> para 
                     una evaluación completa. El diagnóstico temprano es crucial.
                 </p>
             </div>
             """, unsafe_allow_html=True)
         
         # Información adicional
-        with st.expander("📚 Información Adicional"):
+        with st.expander("Información Adicional"):
             col1, col2 = st.columns(2)
             
             with col1:
@@ -531,7 +511,7 @@ Sistema: {CONFIG['MODEL_ARCHITECTURE']}
         """
         
         st.download_button(
-            label="💾 Descargar Resultados",
+            label="Descargar Resultados",
             data=resultado_texto,
             file_name=f"analisis_{result['prediccion']}.txt",
             mime="text/plain",
@@ -539,7 +519,7 @@ Sistema: {CONFIG['MODEL_ARCHITECTURE']}
         )
 
 else:
-    st.info("👆 Carga una imagen para comenzar el análisis")
+    st.info("Carga una imagen para comenzar el análisis")
 
 # ============================================================================
 # FOOTER
@@ -547,10 +527,10 @@ else:
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px;">
-    <p style="font-size: 1.1em; color: #d32f2f; font-weight: 600; margin: 0 0 12px 0;">
-        ⚕️ Este sistema NO diagnostica cáncer de piel
+    <p style="font-size: 1.1em; color: #c62828; font-weight: 600; margin: 0 0 12px 0;">
+        Este sistema NO diagnostica cáncer de piel
     </p>
-    <p style="color: #666; margin: 0 0 20px 0; line-height: 1.6;">
+    <p style="color: #555; margin: 0 0 20px 0; line-height: 1.6;">
         Solo un dermatólogo profesional puede proporcionar un diagnóstico definitivo.
         Ante cualquier duda, consulta inmediatamente con un especialista.
     </p>
